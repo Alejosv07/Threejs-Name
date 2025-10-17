@@ -5,10 +5,12 @@ import { FontLoader, OrbitControls, RGBELoader } from "three/examples/jsm/Addons
 ((d,w)=>{
     const canvas = d.querySelector("canvas.webgl")
 
+    const BASE_URL = import.meta.env.BASE_URL;
+
     const scene = new THREE.Scene();
     
     //texture
-    scene.background = new RGBELoader().load("src/img/urban_street_03_4k.hdr",(envMap)=>{
+    scene.background = new RGBELoader().load(BASE_URL+"/img/urban_street_03_4k.hdr",(envMap)=>{
         envMap.mapping = THREE.EquirectangularReflectionMapping;
         scene.background = envMap;
         scene.environment = envMap;
@@ -24,7 +26,7 @@ import { FontLoader, OrbitControls, RGBELoader } from "three/examples/jsm/Addons
     //Font
     const fontLoader = new FontLoader();
     
-    fontLoader.load("/src/font/Awesome_Regular.json",(font)=>{
+    fontLoader.load(BASE_URL+"/font/Awesome_Regular.json",(font)=>{
         const name = "Alejandro Romero";
         
         const nameShape = new TextGeometry(name,{
@@ -47,9 +49,6 @@ import { FontLoader, OrbitControls, RGBELoader } from "three/examples/jsm/Addons
     ()=>{}
 );
 
-
-    
-
     const sizes ={
         width: w.innerWidth,
         height: w.innerHeight
@@ -64,6 +63,17 @@ import { FontLoader, OrbitControls, RGBELoader } from "three/examples/jsm/Addons
     const render = new THREE.WebGLRenderer({canvas, antialias: true});
     render.setSize(sizes.width,sizes.height);
     render.setPixelRatio(Math.min(w.devicePixelRatio, 2));
+    render.outputColorSpace = THREE.SRGBColorSpace; 
+    render.toneMapping = THREE.ACESFilmicToneMapping;
+    render.toneMappingExposure = 1.0;  
+    
+    w.addEventListener("resize",()=>{
+        sizes.width = w.innerWidth;
+        sizes.height = w.innerHeight;
+        camera.aspect = sizes.width/sizes.height;
+        render.setSize(sizes.width,sizes.height);
+        render.render(scene,camera);
+    });
 
     const animate = ()=>{
         controls.update();
